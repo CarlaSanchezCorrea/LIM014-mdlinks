@@ -15,7 +15,7 @@ const { hasUncaughtExceptionCaptureCallback } = require('process');
 */
 const fs = require('fs');
 
- module.exports = index = () => {
+ index = () => {
     fs.readFile("./README.md","utf8", function (err, data){
       if (err) throw err
       
@@ -24,7 +24,6 @@ const fs = require('fs');
     })
     
 }
-
 index()
 
 
