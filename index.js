@@ -2,39 +2,37 @@
   // ...
 };
 */
-/*let http = require('http'),
-    fs = require('fs');
-const { hasUncaughtExceptionCaptureCallback } = require('process');
 
-  fs.readFile("./index.html",function(err,md){
-    http.createServer(function(req, res){    
-      res.write(html);
-      res.end();
-    }).listen(5500);
-  })
-*/
 const fs = require('fs');
-
- index = () => {
+//Leer archivo
+const readFile = () => {
     fs.readFile("./README.md","utf8", function (err, data){
       if (err) throw err
       
-      //console.log(data)
+        //console.log(data)
         console.log("Muestra contenido del archivo")
     })
     
 }
-index()
+readFile()
 
-
-realPath = () => {
+//Leer path
+const realPath = () => {
 fs.realpath("./README.md", function (err, data){
   if (err) throw err
   
- // console.log(data)
-    console.log("Muetsra Path")
+   // console.log(data)
+    console.log("Muestra Path")
 })
 }
 realPath()
 
-//module.exports = mdLinks;
+//module.exports = mdLinks; 
+
+const path = require('path');
+//let pathObj = path.parse(__filename);
+//let pathFileError = path.parse('D:\La Mana\Laboratoria\md-links\LIM014-mdlinks\README.md');
+let pathFile = path.parse('D:\\La Mana\\Laboratoria\\md-links\\LIM014-mdlinks\\README.md');
+//console.log(pathObj);
+console.log(pathFile);
+//console.log(pathFileError);
