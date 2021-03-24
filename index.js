@@ -15,24 +15,27 @@ const { hasUncaughtExceptionCaptureCallback } = require('process');
 */
 const fs = require('fs');
 
-function readFile () {
-fs.readFile("./README.md","utf8", function (err, data){
-  if (err) throw err
-  
-  console.log(data)
-})
+ module.exports = index = () => {
+    fs.readFile("./README.md","utf8", function (err, data){
+      if (err) throw err
+      
+      //console.log(data)
+        console.log("Muestra contenido del archivo")
+    })
+    
 }
 
-readFile()
+index()
 
 
-function realPath () {
+realPath = () => {
 fs.realpath("./README.md", function (err, data){
   if (err) throw err
   
-  console.log(data)
+ // console.log(data)
+    console.log("Muetsra Path")
 })
 }
 realPath()
 
-/*module.exports = mdLinks;*/
+//module.exports = mdLinks;
