@@ -3,18 +3,19 @@ const { readFile } = require('./api.js');
 const fs = require('fs');
 const path = require('path');
 
-const typePath = (dir) => {
+const mdLinks = (dir) => new Promise((resolve, reject) => {
     const toAbsolutePath = path.resolve(dir)
     const statPath= (fs.statSync(dir));
     const docExtension = path.extname(toAbsolutePath);
     if (statPath && statPath.isFile() && docExtension === '.md'){
-        return readFile(dir)
-    }
+        const result = readFile(dir);
+        //console.log(result)
+        resolve (result);
+    }   
     else{
-        const errMessage = 'No es un archivo .md'
-        return errMessage
+        reject(Error('No es un archivo .md'))
     }
-}
-    
-//console.log(typePath('./test/prueba.md'));
-module.exports = {typePath}
+})
+
+
+module.exports = { mdLinks };
