@@ -6,8 +6,14 @@ const validate =[
     href: 'https://es.wikipedia.org/wiki/Markdown',
     text: 'Markdown',
     file: 'test\\prueba.md'
+  },
+  {
+    href: 'https://es.wikipedia.org/wiki/Markdown/',
+    text: 'Markdown/',
+    file: 'test\\prueba.md'
   }
 ];
+
 //const retornar = 'No es un archivo .md';
 
 describe('readFile', () => {
