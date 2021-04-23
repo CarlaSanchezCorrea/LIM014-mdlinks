@@ -7,7 +7,7 @@
     "test": "jest --verbose"
   },
   "bin": {
-    "md-links": "src\\options.js"
+    "md-Links": "src/options.js"
   },
   "repository": {
     "type": "git",
