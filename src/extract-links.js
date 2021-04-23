@@ -17,5 +17,5 @@ const mdLinks = (dir) => new Promise((resolve, reject) => {
     }
 })
 
-
+        //console.log(mdLinks('test//prueba.md'))
 module.exports = { mdLinks };
