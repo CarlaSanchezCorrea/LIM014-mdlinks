@@ -1,87 +1,48 @@
 #!/usr/bin/env node
-
-const mdLinks = require('./extract-links.js')
-const fetch = require('node-fetch');
+const { totalLinks, uniqueLinks } = require('./cli-options.js');
+const {mdLinks} = require('./API/index.js');
+const {validateLink, brokenLinks} = require('./validate-option.js');
 const chalk = require('chalk');
-const pathDoc = process.argv[2];
-let options = {
-  validate: false,
-  stats: false
+ const fetch = require('node-fetch');
+
+const path = process.argv[2];
+const options = process.argv[3];
+const status = process.argv[4];
+
+
+
+if (options === '--validate' && status === '--stats' || status === '--stats' && options === '--validate' || options === '--s' && status === '--v' || options === '--v' && status === '--s') {
+  mdLinks(path, { validate: true })
+    .then(res => {
+      console.log(`Total: ${totalLinks(res)}`);
+      console.log(`Unique: ${uniqueLinks(res)}`);
+      console.log(`Broken: ${brokenLinks(res)}`);
+    }) 
+} else if (options === '--validate' || options === '--v') {
+  mdLinks(path, { validate: true })
+    .then(res =>
+      validateLink(res).then((a) => a.forEach(element => {
+               fetch(element.href).then(res => {
+                 if (res.status === 200) {
+                     console.log(`${('📋 FILE: ')} ${(element.file)}    |${('✅ STATUS: ')} ${chalk.green(res.statusText)} ${chalk.green(res.status)}          |${('📌 TEXT: ')}  ${(element.text)}    | ${chalk.cyan('🔗 LINK: ')} ${chalk.cyan(res.url)}`)
+                   } else if (res.status !== 200) {
+                     console.log(`${('📋 FILE: ')} ${(element.file)}    |${('❌ STATUS: ')} ${chalk.red(res.statusText)} ${chalk.red(res.status)}   |${('📌 TEXT: ')}  ${(element.text)}    | ${chalk.red('✂ LINK: ')} ${chalk.red(res.url)}`)          
+                   }
+              })
+    }))); 
+} else if (options === '--stats' || options === '--s') {
+  mdLinks(path, { validate: true })
+    .then(res => {
+      console.log(`Total: ${totalLinks(res)}`);
+      console.log(`Unique: ${uniqueLinks(res)}`);
+    })
+    .catch(error => console.log(error));
+} else {
+  mdLinks(path)
+  .then(res => {
+    res.forEach((element) => {
+      console.log(`|File: ${chalk.red(element.file)} | Text: ${chalk.yellowBright(element.text)} | Link: ${chalk.underline.blueBright(element.href)}`);
+    });
+  })
+    .catch(err => console.log(err));
 }
-
-mdLinks(pathDoc, options).then((arrayLinksMd) => {
-
-  if (process.argv[3] === '--validate' && process.argv[4] === '--stats' || process.argv[4] === '--validate' && process.argv[3] === '--stats') {
-    options.validate = true;
-    options.stats = true;
-    let urlArray = [];
-    let arrayStatusOk = 0;
-    let arrayStatusFail = [];
-
-    arrayLinksMd.forEach(element => {
-
-      urlArray.push(element.href)
-
-      fetch(element.href).then(res => {
-        if (res.status >= 200 && res.status <= 309) {
-          arrayStatusOk = arrayStatusOk + 1;
-
-        } else if (res.status >= 400) {
-          arrayStatusFail.push(res.status);
-
-        }
-      });
-    })
-
-    let uniqs = new Set(urlArray);
-
-    setTimeout(function () {
-      console.log(`|Links de: ${chalk.cyanBright(pathDoc)} |TOTAL  | ${chalk.yellowBright(arrayLinksMd.length)} `);
-      console.log(`|Links de: ${chalk.cyanBright(pathDoc)} |UNICOS | ${chalk.blueBright(uniqs.size)} `);
-      console.log(`|Links de: ${chalk.cyanBright(pathDoc)} |OK     | ${chalk.green(arrayStatusOk)}`);
-      console.log(`|Links de: ${chalk.cyanBright(pathDoc)} |FAIL   | ${chalk.red(arrayStatusFail.length)} `);
-
-
-    }, 4000);
-
-  } else if (process.argv[3] === '--validate') {
-    options.validate = true;
-    arrayLinksMd.forEach((element) => {
-      fetch(element.href).then(res => {
-
-        if (res.status >= 200 && res.status <= 309) {
-          console.log(`|Status:(✔✔ ) ${chalk.greenBright(res.status)} ${chalk.green(res.statusText)}  | File: ${chalk.cyanBright(element.file)} | Text: ${chalk.yellowBright(element.text)} | Link: ${chalk.underline.blueBright(res.url)} `);
-
-        } else if (res.status >= 400) {
-          console.log(`|Status:(✘ )  ${chalk.redBright(res.status)} ${chalk.red("FAIL")}| File: ${chalk.cyanBright(element.file)} | Text: ${chalk.yellowBright(element.text)} | Link: ${chalk.underline.redBright(res.url)} `);
-
-        }
-      }).catch(err => {
-        console.log(`|Status:( ⚠ ) |File: ${chalk.cyanBright(element.file)} | Text: ${chalk.yellowBright(element.text)} | Link: ${chalk.underline.yellowBright(res.url)}<--- Este enlace presenta problemas` + err);
-      });
-
-    });
-  } else if (process.argv[3] === '--stats') {
-    options.stats = true;
-    let urlArray = [];
-    arrayLinksMd.forEach(element => {
-      urlArray.push(element.href)
-    })
-
-    let uniqs = new Set(urlArray);
-
-    console.log(`|Links de: ${chalk.cyanBright(pathDoc)} |TOTAL  | ${chalk.yellowBright(arrayLinksMd.length)} `);
-    console.log(`|Links de: ${chalk.cyanBright(pathDoc)} |UNICOS | ${chalk.blueBright(uniqs.size)} `);
-  } else {
-    arrayLinksMd.forEach((element) => {
-      console.log(`
-      ------ CREADO CORRECTAMENTE ------\n
-      Se ha creado el siguiente elemento\n
-      - Ruta: ${chalk.blue.bold(element.file)}\n
-      - Texto: ${chalk.blue.bold(element.text)}\n
-      ----------------------------------\n
-      `);  
-    });
-  }
-});
-module.exports = mdLinks;
